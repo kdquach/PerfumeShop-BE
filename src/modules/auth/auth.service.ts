@@ -1,11 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import Token from '../token/token.model';
 import ApiError from '../errors/ApiError';
 import tokenTypes from '../token/token.types';
-import { getUserByEmail, getUserById, updateUserById } from '../user/user.service';
+import { getUserById, updateUserById } from '../user/user.service';
 import { IUserDoc, IUserWithTokens } from '../user/user.interfaces';
 import { generateAuthTokens, verifyToken } from '../token/token.service';
+import User from '../user/user.model';
 
 /**
  * Login with username and password
@@ -14,10 +16,23 @@ import { generateAuthTokens, verifyToken } from '../token/token.service';
  * @returns {Promise<IUserDoc>}
  */
 export const loginUserWithEmailAndPassword = async (email: string, password: string): Promise<IUserDoc> => {
-  const user = await getUserByEmail(email);
-  if (!user || !(await user.isPasswordMatch(password))) {
+  const user = await User.findOne({ email }).select('+passwordHash');
+
+  // Debug log
+  // eslint-disable-next-line no-console
+  console.log('User from DB:', user);
+  // eslint-disable-next-line no-console
+  console.log('user.passwordHash:', user && user.passwordHash);
+
+  if (!user) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
   }
+
+  const isPasswordMatch = await user.isPasswordMatch(password);
+  if (!isPasswordMatch) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect email or password');
+  }
+
   return user;
 };
 

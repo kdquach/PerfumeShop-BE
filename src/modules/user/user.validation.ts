@@ -7,6 +7,10 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   password: Joi.string().required().custom(password),
   name: Joi.string().required(),
   role: Joi.string().required().valid('user', 'admin'),
+  phone: Joi.string().required(),
+  address: Joi.string().required(),
+  gender: Joi.string().required().valid('male', 'female', 'other'),
+  provider: Joi.string().required().valid('local', 'google', 'facebook'),
 };
 
 export const createUser = {
@@ -39,6 +43,9 @@ export const updateUser = {
       email: Joi.string().email(),
       password: Joi.string().custom(password),
       name: Joi.string(),
+      phone: Joi.string(),
+      address: Joi.string(),
+      gender: Joi.string().valid('male', 'female', 'other'),
     })
     .min(1),
 };

@@ -1,5 +1,6 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import User from './user.model';
 import ApiError from '../errors/ApiError';
 import { IOptions, QueryResult } from '../paginate/paginate';
@@ -14,7 +15,11 @@ export const createUser = async (userBody: NewCreatedUser): Promise<IUserDoc> =>
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  return User.create(userBody);
+  const passwordHash = await bcrypt.hash(userBody.password, 8);
+  return User.create({
+    ...userBody,
+    passwordHash,
+  });
 };
 
 /**
@@ -26,7 +31,14 @@ export const registerUser = async (userBody: NewRegisteredUser): Promise<IUserDo
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  return User.create(userBody);
+  const passwordHash = await bcrypt.hash(userBody.password, 8);
+  return User.create({
+    ...userBody,
+    passwordHash,
+    role: 'user',
+    provider: 'local',
+    isEmailVerified: false,
+  });
 };
 
 /**
@@ -52,7 +64,8 @@ export const getUserById = async (id: mongoose.Types.ObjectId): Promise<IUserDoc
  * @param {string} email
  * @returns {Promise<IUserDoc | null>}
  */
-export const getUserByEmail = async (email: string): Promise<IUserDoc | null> => User.findOne({ email });
+export const getUserByEmail = async (email: string): Promise<IUserDoc | null> =>
+  User.findOne({ email }).select('+passwordHash').exec() as Promise<IUserDoc | null>;
 
 /**
  * Update user by id
@@ -71,7 +84,15 @@ export const updateUserById = async (
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  Object.assign(user, updateBody);
+
+  // If password is being updated, hash it
+  const updatedFields = { ...updateBody };
+  if (updatedFields.password) {
+    updatedFields.passwordHash = await bcrypt.hash(updatedFields.password, 8);
+    delete updatedFields.password;
+  }
+
+  Object.assign(user, updatedFields);
   await user.save();
   return user;
 };

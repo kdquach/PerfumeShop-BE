@@ -10,7 +10,11 @@ describe('User model', () => {
         name: faker.name.findName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
+        phone: '0909123456',
+        address: '123 ABC Street',
+        gender: 'male',
         role: 'user',
+        provider: 'local',
       };
     });
 

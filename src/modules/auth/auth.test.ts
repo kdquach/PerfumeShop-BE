@@ -21,7 +21,7 @@ import ApiError from '../errors/ApiError';
 setupTestDB();
 
 const password = 'password1';
-const salt = bcrypt.genSaltSync(8);
+const salt = bcrypt.genSaltSync(12);
 const hashedPassword = bcrypt.hashSync(password, salt);
 const accessTokenExpires = moment().add(config.jwt.accessExpirationMinutes, 'minutes');
 
@@ -30,14 +30,22 @@ const userOne = {
   name: faker.name.findName(),
   email: faker.internet.email().toLowerCase(),
   password,
+  phone: '0909123456',
+  address: '123 ABC Street',
+  gender: 'male',
   role: 'user',
+  provider: 'local',
   isEmailVerified: false,
 };
 
 const userOneAccessToken = tokenService.generateToken(userOne._id, accessTokenExpires, tokenTypes.ACCESS);
 
 const insertUsers = async (users: Record<string, any>[]) => {
-  await User.insertMany(users.map((user) => ({ ...user, password: hashedPassword })));
+  await User.insertMany(users.map((user) => ({
+    ...user,
+    passwordHash: hashedPassword,
+    password: undefined,
+  })));
 };
 
 describe('Auth routes', () => {
@@ -48,6 +56,9 @@ describe('Auth routes', () => {
         name: faker.name.findName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
+        phone: '0909123456',
+        address: '123 ABC Street',
+        gender: 'male',
       };
     });
 
@@ -278,7 +289,7 @@ describe('Auth routes', () => {
 
       const dbUser = await User.findById(userOne._id);
       if (dbUser) {
-        const isPasswordMatch = await bcrypt.compare('password2', dbUser.password);
+        const isPasswordMatch = await bcrypt.compare('password2', dbUser.passwordHash);
         // eslint-disable-next-line jest/no-conditional-expect
         expect(isPasswordMatch).toBe(true);
       }

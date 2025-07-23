@@ -67,13 +67,13 @@ export const saveToken = async (
  */
 export const verifyToken = async (token: string, type: string): Promise<ITokenDoc> => {
   const payload = jwt.verify(token, config.jwt.secret);
-  if (typeof payload.sub !== 'string') {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'bad user');
+  if (typeof payload === 'string' || !payload.sub) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid token payload');
   }
   const tokenDoc = await Token.findOne({
     token,
     type,
-    user: payload.sub,
+    user: new mongoose.Types.ObjectId(payload.sub),
     blacklisted: false,
   });
   if (!tokenDoc) {

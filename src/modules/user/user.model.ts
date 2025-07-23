@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import toJSON from '../toJSON/toJSON';
 import paginate from '../paginate/paginate';
 import { roles } from '../../config/roles';
-import { IUserDoc, IUserModel } from './user.interfaces';
+import { IUserDoc, IUserModel, IUserWithPassword } from './user.interfaces';
 
 const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
   {
@@ -25,22 +25,42 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
         }
       },
     },
-    password: {
+    passwordHash: {
+      type: String,
+      required: true,
+      select: false,
+      private: true, // used by the toJSON plugin
+    },
+    phone: {
       type: String,
       required: true,
       trim: true,
-      minlength: 8,
       validate(value: string) {
-        if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
-          throw new Error('Password must contain at least one letter and one number');
+        if (!validator.isMobilePhone(value, 'vi-VN')) {
+          throw new Error('Invalid phone number');
         }
       },
-      private: true, // used by the toJSON plugin
+    },
+    address: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    gender: {
+      type: String,
+      required: true,
+      enum: ['male', 'female', 'other'],
     },
     role: {
       type: String,
       enum: roles,
       default: 'user',
+    },
+    provider: {
+      type: String,
+      required: true,
+      enum: ['local', 'google', 'facebook'],
+      default: 'local',
     },
     isEmailVerified: {
       type: Boolean,
@@ -68,19 +88,23 @@ userSchema.static('isEmailTaken', async function (email: string, excludeUserId: 
 });
 
 /**
- * Check if password matches the user's password
+ * Check if password matches the user's password hash
  * @param {string} password
  * @returns {Promise<boolean>}
  */
 userSchema.method('isPasswordMatch', async function (password: string): Promise<boolean> {
   const user = this;
-  return bcrypt.compare(password, user.password);
+  if (!user.passwordHash) {
+    return false;
+  }
+  return bcrypt.compare(password, user.passwordHash);
 });
 
 userSchema.pre('save', async function (next) {
-  const user = this;
-  if (user.isModified('password')) {
-    user.password = await bcrypt.hash(user.password, 8);
+  const user = this as mongoose.Document & IUserWithPassword;
+  if (user.isModified('password') && user.password) {
+    user.passwordHash = await bcrypt.hash(user.password, 12);
+    delete user.password;
   }
   next();
 });

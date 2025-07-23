@@ -1,9 +1,9 @@
-import { Document, Model } from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 import { JwtPayload } from 'jsonwebtoken';
 
 export interface IToken {
   token: string;
-  user: string;
+  user: mongoose.Types.ObjectId;
   type: string;
   expires: Date;
   blacklisted: boolean;

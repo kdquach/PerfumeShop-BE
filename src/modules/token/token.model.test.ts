@@ -27,7 +27,7 @@ describe('Token Model', () => {
   beforeEach(() => {
     newToken = {
       token: userOneAccessToken,
-      user: userOne._id.toHexString(),
+      user: userOne._id,
       type: tokenTypes.REFRESH,
       expires: refreshTokenExpires.toDate(),
     };

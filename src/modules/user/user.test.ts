@@ -62,7 +62,11 @@ describe('User routes', () => {
         name: faker.name.findName(),
         email: faker.internet.email().toLowerCase(),
         password: 'password1',
+        phone: '0909123456',
+        address: '123 ABC Street',
+        gender: 'male',
         role: 'user',
+        provider: 'local',
       };
     });
 
@@ -88,7 +92,7 @@ describe('User routes', () => {
       expect(dbUser).toBeDefined();
       if (!dbUser) return;
 
-      expect(dbUser.password).not.toBe(newUser.password);
+      expect(dbUser.passwordHash).not.toBe(newUser.password);
       expect(dbUser).toMatchObject({ name: newUser.name, email: newUser.email, role: newUser.role, isEmailVerified: false });
     });
 
@@ -553,7 +557,7 @@ describe('User routes', () => {
       const dbUser = await User.findById(userOne._id);
       expect(dbUser).toBeDefined();
       if (!dbUser) return;
-      expect(dbUser.password).not.toBe(updateBody.password);
+      expect(dbUser.passwordHash).not.toBe(updateBody.password);
       expect(dbUser).toMatchObject({ name: updateBody.name, email: updateBody.email, role: 'user' });
     });
 

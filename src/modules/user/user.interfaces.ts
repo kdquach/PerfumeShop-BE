@@ -1,13 +1,22 @@
-import mongoose, { Model, Document } from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 import { QueryResult } from '../paginate/paginate';
 import { AccessAndRefreshTokens } from '../token/token.interfaces';
 
 export interface IUser {
   name: string;
   email: string;
-  password: string;
+  passwordHash: string;
+  phone: string;
+  address: string;
+  gender: string;
   role: string;
+  provider: string;
   isEmailVerified: boolean;
+}
+
+// Interface for document with temporary password field
+export interface IUserWithPassword extends IUser {
+  password?: string; // Temporary field for password before hashing
 }
 
 export interface IUserDoc extends IUser, Document {
@@ -19,11 +28,38 @@ export interface IUserModel extends Model<IUserDoc> {
   paginate(filter: Record<string, any>, options: Record<string, any>): Promise<QueryResult>;
 }
 
-export type UpdateUserBody = Partial<IUser>;
+export type UpdateUserBody = {
+  name?: string;
+  email?: string;
+  password?: string;
+  passwordHash?: string;
+  phone?: string;
+  address?: string;
+  gender?: string;
+  role?: string;
+  provider?: string;
+  isEmailVerified?: boolean;
+};
 
-export type NewRegisteredUser = Omit<IUser, 'role' | 'isEmailVerified'>;
+export type NewRegisteredUser = {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
+  gender: string;
+};
 
-export type NewCreatedUser = Omit<IUser, 'isEmailVerified'>;
+export type NewCreatedUser = {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  address: string;
+  gender: string;
+  role: string;
+  provider: string;
+};
 
 export interface IUserWithTokens {
   user: IUserDoc;
