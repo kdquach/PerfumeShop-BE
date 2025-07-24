@@ -5,6 +5,11 @@ import { tokenService } from '../token';
 import { userService } from '../user';
 import * as authService from './auth.service';
 import { emailService } from '../email';
+import { IUserDoc } from '../user/user.interfaces';
+
+interface RequestWithUser extends Request {
+  user: IUserDoc;
+}
 
 export const register = catchAsync(async (req: Request, res: Response) => {
   const user = await userService.registerUser(req.body);
@@ -14,8 +19,6 @@ export const register = catchAsync(async (req: Request, res: Response) => {
 
 export const login = catchAsync(async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  // eslint-disable-next-line no-console
-  console.log('🔍 Received from client:', { email, password });
   const user = await authService.loginUserWithEmailAndPassword(email, password);
   const tokens = await tokenService.generateAuthTokens(user);
   res.send({ user, tokens });
@@ -51,4 +54,8 @@ export const sendVerificationEmail = catchAsync(async (req: Request, res: Respon
 export const verifyEmail = catchAsync(async (req: Request, res: Response) => {
   await authService.verifyEmail(req.query['token']);
   res.status(httpStatus.NO_CONTENT).send();
+});
+
+export const getCurrentUser = catchAsync(async (req: RequestWithUser, res: Response) => {
+  res.send({ user: req.user });
 });

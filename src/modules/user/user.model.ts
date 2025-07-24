@@ -66,6 +66,12 @@ const userSchema = new mongoose.Schema<IUserDoc, IUserModel>(
       type: Boolean,
       default: false,
     },
+    avatar: {
+      type: String,
+      required: false,
+      trim: true,
+      default: '',
+    },
   },
   {
     timestamps: true,

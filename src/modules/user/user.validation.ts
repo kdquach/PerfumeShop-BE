@@ -11,6 +11,7 @@ const createUserBody: Record<keyof NewCreatedUser, any> = {
   address: Joi.string().required(),
   gender: Joi.string().required().valid('male', 'female', 'other'),
   provider: Joi.string().required().valid('local', 'google', 'facebook'),
+  avatar: Joi.string().allow('').optional(),
 };
 
 export const createUser = {

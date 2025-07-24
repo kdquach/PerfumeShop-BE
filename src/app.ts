@@ -6,6 +6,7 @@ import compression from 'compression';
 import cors from 'cors';
 import passport from 'passport';
 import httpStatus from 'http-status';
+import path from 'path';
 import config from './config/config';
 import { morgan } from './modules/logger';
 import { jwtStrategy } from './modules/auth';
@@ -43,6 +44,9 @@ app.use(compression());
 // jwt authentication
 app.use(passport.initialize());
 passport.use('jwt', jwtStrategy);
+
+// Serve static files from "uploads" folder
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // limit repeated failed requests to auth endpoints
 if (config.env === 'production') {

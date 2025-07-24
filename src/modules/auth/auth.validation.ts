@@ -9,6 +9,7 @@ const registerBody: Record<keyof NewRegisteredUser, any> = {
   phone: Joi.string().required(),
   address: Joi.string().required(),
   gender: Joi.string().required().valid('male', 'female', 'other'),
+  avatar: Joi.string().allow('').optional(),
 };
 
 export const register = {

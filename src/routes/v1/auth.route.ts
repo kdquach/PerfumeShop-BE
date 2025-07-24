@@ -1,8 +1,9 @@
-import express, { Router } from 'express';
+import express from 'express';
 import { validate } from '../../modules/validate';
-import { authValidation, authController, auth } from '../../modules/auth';
+import { authValidation, authController } from '../../modules/auth';
+import auth from '../../modules/auth/auth.middleware';
 
-const router: Router = express.Router();
+const router = express.Router();
 
 router.post('/register', validate(authValidation.register), authController.register);
 router.post('/login', validate(authValidation.login), authController.login);
@@ -12,6 +13,7 @@ router.post('/forgot-password', validate(authValidation.forgotPassword), authCon
 router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
 router.post('/send-verification-email', auth(), authController.sendVerificationEmail);
 router.post('/verify-email', validate(authValidation.verifyEmail), authController.verifyEmail);
+router.get('/me', auth(), authController.getCurrentUser);
 
 export default router;
 

@@ -12,6 +12,7 @@ export interface IUser {
   role: string;
   provider: string;
   isEmailVerified: boolean;
+  avatar?: string;
 }
 
 // Interface for document with temporary password field
@@ -39,6 +40,7 @@ export type UpdateUserBody = {
   role?: string;
   provider?: string;
   isEmailVerified?: boolean;
+  avatar?: string;
 };
 
 export type NewRegisteredUser = {
@@ -48,6 +50,7 @@ export type NewRegisteredUser = {
   phone: string;
   address: string;
   gender: string;
+  avatar?: string;
 };
 
 export type NewCreatedUser = {
@@ -59,6 +62,7 @@ export type NewCreatedUser = {
   gender: string;
   role: string;
   provider: string;
+  avatar?: string;
 };
 
 export interface IUserWithTokens {

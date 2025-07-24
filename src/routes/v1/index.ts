@@ -1,17 +1,12 @@
-import express, { Router } from 'express';
+import express from 'express';
 import authRoute from './auth.route';
-import docsRoute from './swagger.route';
 import userRoute from './user.route';
+import docsRoute from './swagger.route';
 import config from '../../config/config';
 
 const router = express.Router();
 
-interface IRoute {
-  path: string;
-  route: Router;
-}
-
-const defaultIRoute: IRoute[] = [
+const defaultRoutes = [
   {
     path: '/auth',
     route: authRoute,
@@ -22,21 +17,20 @@ const defaultIRoute: IRoute[] = [
   },
 ];
 
-const devIRoute: IRoute[] = [
-  // IRoute available only in development mode
+const devRoutes = [
   {
     path: '/docs',
     route: docsRoute,
   },
 ];
 
-defaultIRoute.forEach((route) => {
+defaultRoutes.forEach((route) => {
   router.use(route.path, route.route);
 });
 
 /* istanbul ignore next */
 if (config.env === 'development') {
-  devIRoute.forEach((route) => {
+  devRoutes.forEach((route) => {
     router.use(route.path, route.route);
   });
 }
