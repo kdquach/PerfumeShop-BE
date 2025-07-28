@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 import { Request as ExpressRequest, Response, NextFunction } from 'express';
 import passport from 'passport';
 import httpStatus from 'http-status';

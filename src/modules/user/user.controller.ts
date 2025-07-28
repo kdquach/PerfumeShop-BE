@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/dot-notation */
 import httpStatus from 'http-status';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
